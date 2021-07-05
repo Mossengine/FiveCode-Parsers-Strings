@@ -1,0 +1,56 @@
+{
+  "name": "mossengine/fivecode-parsers-strings",
+  "type": "library",
+  "description": "A Parser for the FiveCode library that provides string based logical instructions.",
+  "keywords": [
+    "5GL",
+    "code",
+    "fivecode",
+    "parser",
+    "string"
+  ],
+  "homepage": "https://github.com/Mossengine/FiveCode-Parsers-Strings",
+  "support": {
+    "issues": "https://github.com/Mossengine/FiveCode-Parsers-Strings/issues",
+    "source": "https://github.com/Mossengine/FiveCode-Parsers-Strings"
+  },
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Brendon Moss",
+      "email": "brenmoss@mossengine.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.0",
+    "ext-json": "*",
+    "mossengine/fivecode": "^2.2.4",
+    "mossengine/helper": "^2.0",
+    "mossengine/helpersarray": "^1.0"
+  },
+  "require-dev": {
+    "friendsofphp/php-cs-fixer": "~2",
+    "phpunit/phpunit": "~4.0 || ~5.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Mossengine\\FiveCode\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+  "config": {
+    "sort-packages": true
+  },
+  "scripts": {
+    "test": [
+      "@phpunit",
+      "@phpcs"
+    ],
+    "phpunit": "phpunit",
+    "phpcs": "php-cs-fixer fix -v --diff --dry-run"
+  }
+}

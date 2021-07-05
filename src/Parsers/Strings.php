@@ -1,5 +1,7 @@
 <?php namespace Mossengine\FiveCode\Parsers;
 
+use Mossengine\FiveCode\Exceptions\ParserNotAllowedException;
+use Mossengine\FiveCode\Exceptions\ParserNotFoundException;
 use Mossengine\FiveCode\FiveCode;
 
 /**
@@ -28,52 +30,87 @@ class Strings extends ParsersAbstract {
 
     /**
      * @param FiveCode $fiveCode
-     * @param array $mixedData
+     * @param array $arrayData
      * @return int
+     * @throws ParserNotAllowedException
+     * @throws ParserNotFoundException
      */
-    public static function length(FiveCode $fiveCode, array $mixedData = []) : int {
+    public static function length(FiveCode $fiveCode, array $arrayData = []) : int {
         $intLength = 0;
-        foreach ($mixedData as $arg) {
-            $intLength += strlen($arg);
+        foreach ($arrayData as $arg) {
+            $intLength += strlen($fiveCode->instructions($arg));
         }
         return $fiveCode->result($intLength);
     }
 
     /**
      * @param FiveCode $fiveCode
-     * @param array $mixedData
+     * @param array $arrayData
      * @return string
+     * @throws ParserNotAllowedException
+     * @throws ParserNotFoundException
      */
-    public static function join(FiveCode $fiveCode, array $mixedData = []) : string {
-        $glue = array_shift($mixedData);
-        return $fiveCode->result(implode($glue, $mixedData));
+    public static function join(FiveCode $fiveCode, array $arrayData = []) : string {
+        $glue = $fiveCode->instructions(array_shift($arrayData));
+        return $fiveCode->result(
+            implode(
+                $glue,
+                array_map(
+                    function($item) use ($fiveCode) {
+                        return $fiveCode->instructions($item);
+                    },
+                    $arrayData
+                )
+            )
+        );
     }
 
     /**
      * @param FiveCode $fiveCode
-     * @param array $mixedData
+     * @param array $arrayData
      * @return array
+     * @throws ParserNotAllowedException
+     * @throws ParserNotFoundException
      */
-    public static function split(FiveCode $fiveCode, array $mixedData = []) : array {
-        $glue = array_shift($mixedData);
-        return $fiveCode->result(explode($glue, self::join($fiveCode, array_merge([$glue], $mixedData))));
+    public static function split(FiveCode $fiveCode, array $arrayData = []) : array {
+        $glue = $fiveCode->instructions(array_shift($arrayData));
+        return $fiveCode->result(
+            explode(
+                $glue,
+                self::join(
+                    $fiveCode,
+                    array_merge([$glue], $arrayData)
+                )
+            )
+        );
     }
 
     /**
      * @param FiveCode $fiveCode
-     * @param array $mixedData
+     * @param array $arrayData
      * @return string
+     * @throws ParserNotAllowedException
+     * @throws ParserNotFoundException
      */
-    public static function upper(FiveCode $fiveCode, array $mixedData = []) : string {
-        return $fiveCode->result(strtoupper(self::join($fiveCode, array_merge([''], $mixedData))));
+    public static function upper(FiveCode $fiveCode, array $arrayData = []) : string {
+        return $fiveCode->result(
+            strtoupper(
+                self::join(
+                    $fiveCode,
+                    array_merge([''], $arrayData)
+                )
+            )
+        );
     }
 
     /**
      * @param FiveCode $fiveCode
-     * @param array $mixedData
+     * @param array $arrayData
      * @return string
+     * @throws ParserNotAllowedException
+     * @throws ParserNotFoundException
      */
-    public static function firstUpper(FiveCode $fiveCode, array $mixedData = []) : string {
+    public static function firstUpper(FiveCode $fiveCode, array $arrayData = []) : string {
         return $fiveCode->result(
             self::join(
                 $fiveCode,
@@ -83,7 +120,7 @@ class Strings extends ParsersAbstract {
                         function($value) {
                             return ucfirst($value);
                         },
-                        $mixedData
+                        $arrayData
                     )
                 )
             )
@@ -92,19 +129,30 @@ class Strings extends ParsersAbstract {
 
     /**
      * @param FiveCode $fiveCode
-     * @param array $mixedData
+     * @param array $arrayData
      * @return string
+     * @throws ParserNotAllowedException
+     * @throws ParserNotFoundException
      */
-    public static function lower(FiveCode $fiveCode, array $mixedData = []) : string {
-        return $fiveCode->result(strtolower(self::join($fiveCode, array_merge([''], $mixedData))));
+    public static function lower(FiveCode $fiveCode, array $arrayData = []) : string {
+        return $fiveCode->result(
+            strtolower(
+                self::join(
+                    $fiveCode,
+                    array_merge([''], $arrayData)
+                )
+            )
+        );
     }
 
     /**
      * @param FiveCode $fiveCode
-     * @param array $mixedData
+     * @param array $arrayData
      * @return string
+     * @throws ParserNotAllowedException
+     * @throws ParserNotFoundException
      */
-    public static function firstLower(FiveCode $fiveCode, array $mixedData = []) : string {
+    public static function firstLower(FiveCode $fiveCode, array $arrayData = []) : string {
         return $fiveCode->result(
             self::join(
                 $fiveCode,
@@ -114,7 +162,7 @@ class Strings extends ParsersAbstract {
                         function($value) {
                             return lcfirst($value);
                         },
-                        $mixedData
+                        $arrayData
                     )
                 )
             )
@@ -123,10 +171,12 @@ class Strings extends ParsersAbstract {
 
     /**
      * @param FiveCode $fiveCode
-     * @param array $mixedData
+     * @param array $arrayData
      * @return string
+     * @throws ParserNotAllowedException
+     * @throws ParserNotFoundException
      */
-    public static function reverse(FiveCode $fiveCode, array $mixedData = []) : string {
+    public static function reverse(FiveCode $fiveCode, array $arrayData = []) : string {
         return $fiveCode->result(
             self::join(
                 $fiveCode,
@@ -136,7 +186,7 @@ class Strings extends ParsersAbstract {
                         function($value) {
                             return strrev($value);
                         },
-                        $mixedData
+                        $arrayData
                     )
                 )
             )
@@ -145,28 +195,42 @@ class Strings extends ParsersAbstract {
 
     /**
      * @param FiveCode $fiveCode
-     * @param array $mixedData
+     * @param array $arrayData
      * @return string
+     * @throws ParserNotAllowedException
+     * @throws ParserNotFoundException
      */
-    public static function extract(FiveCode $fiveCode, array $mixedData = []) : string {
+    public static function extract(FiveCode $fiveCode, array $arrayData = []) : string {
         return $fiveCode->result(
             call_user_func_array(
                 'substr',
-                $mixedData
+                array_map(
+                    function($item) use ($fiveCode) {
+                        return $fiveCode->instructions($item);
+                    },
+                    $arrayData
+                )
             )
         );
     }
 
     /**
      * @param FiveCode $fiveCode
-     * @param array $mixedData
+     * @param array $arrayData
      * @return array|\ArrayAccess|mixed|null
+     * @throws ParserNotAllowedException
+     * @throws ParserNotFoundException
      */
-    public static function position(FiveCode $fiveCode, array $mixedData = []) {
+    public static function position(FiveCode $fiveCode, array $arrayData = []) {
         return $fiveCode->result(
             call_user_func_array(
                 'strpos',
-                $mixedData
+                array_map(
+                    function($item) use ($fiveCode) {
+                        return $fiveCode->instructions($item);
+                    },
+                    $arrayData
+                )
             )
         );
     }
